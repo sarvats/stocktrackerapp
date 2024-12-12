@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class MarketPage extends StatefulWidget {
+  final Function(dynamic stock) onAddToWatchlist;
+
+  MarketPage({required this.onAddToWatchlist});
+
   @override
   _MarketPageState createState() => _MarketPageState();
 }
 
 class _MarketPageState extends State<MarketPage> {
   List<dynamic> stocks = [];
+  List<dynamic> filteredStocks = [];
   bool isLoading = true;
 
   @override
@@ -26,6 +31,7 @@ class _MarketPageState extends State<MarketPage> {
       if (response.statusCode == 200) {
         setState(() {
           stocks = json.decode(response.body);
+          filteredStocks = stocks; // Initialize filtered list
           isLoading = false;
         });
       } else {
@@ -52,6 +58,16 @@ class _MarketPageState extends State<MarketPage> {
     );
   }
 
+  void filterStocks(String query) {
+    setState(() {
+      filteredStocks = stocks
+          .where((stock) =>
+              (stock['description'] ?? '').toLowerCase().contains(query.toLowerCase()) ||
+              (stock['symbol'] ?? '').toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,25 +85,23 @@ class _MarketPageState extends State<MarketPage> {
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) {
-                // Optionally, filter stocks here
-              },
+              onChanged: (value) => filterStocks(value),
             ),
             SizedBox(height: 16),
             isLoading
                 ? Center(child: CircularProgressIndicator())
                 : Expanded(
                     child: ListView.builder(
-                      itemCount: stocks.length,
+                      itemCount: filteredStocks.length,
                       itemBuilder: (context, index) {
-                        final stock = stocks[index];
+                        final stock = filteredStocks[index];
                         return ListTile(
                           leading: Icon(Icons.trending_up, color: Colors.green),
                           title: Text(stock['description'] ?? 'N/A'),
                           subtitle: Text('Symbol: ${stock['symbol'] ?? 'N/A'}'),
                           trailing: ElevatedButton(
                             onPressed: () {
-                              // Add to watchlist logic
+                              widget.onAddToWatchlist(stock); // Use the callback
                             },
                             child: Text('Add'),
                           ),

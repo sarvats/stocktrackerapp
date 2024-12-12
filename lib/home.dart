@@ -11,13 +11,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  List<dynamic> watchlist = []; // Watchlist shared across pages
 
-  static List<Widget> _pages = <Widget>[
-    MarketPage(),
-    WatchlistPage(),
-    NewsfeedPage(),
-    SettingsPage(),
-  ];
+  static List<Widget> _buildPages(List<dynamic> watchlist) {
+    return <Widget>[
+      MarketPage(
+        onAddToWatchlist: (stock) => watchlist.add(stock),
+      ),
+      WatchlistPage(watchlist: watchlist),
+      NewsfeedPage(),
+      SettingsPage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,9 +32,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = _buildPages(watchlist);
+
     return Scaffold(
       appBar: AppBar(title: Text('Stock Tracker')),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
