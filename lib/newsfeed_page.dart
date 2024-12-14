@@ -51,6 +51,7 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   }
 
   void _openArticleDetails(Map<String, dynamic> article) {
+    print('Article data: $article');
     Navigator.push(
       context,
       MaterialPageRoute(
