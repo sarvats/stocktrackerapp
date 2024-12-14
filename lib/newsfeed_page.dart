@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'articledetails.dart'; 
 
 class NewsfeedPage extends StatefulWidget {
   @override
@@ -49,6 +50,15 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
     );
   }
 
+  void _openArticleDetails(Map<String, dynamic> article) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ArticleDetailsPage(article: article),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,22 +89,25 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           child: ListTile(
+                            leading: article['image'] != null
+                                ? Image.network(
+                                    article['image'],
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                             title: Text(article['headline'] ?? 'No Title'),
                             subtitle: Text('${article['source']}'),
                             trailing: IconButton(
                               icon: Icon(Icons.bookmark_border),
                               onPressed: () => _bookmarkArticle(index),
                             ),
-                            onTap: () => _openArticle(article['url']),
+                            onTap: () => _openArticleDetails(article),
                           ),
                         );
                       },
                     ),
     );
-  }
-
-  void _openArticle(String url) {
-    // Placeholder for URL navigation (use url_launcher package)
-    print('Opening article: $url');
   }
 }
