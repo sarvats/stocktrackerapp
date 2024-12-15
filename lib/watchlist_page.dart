@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'stockdetails.dart'; 
 
 class WatchlistPage extends StatelessWidget {
   final List<dynamic> watchlist;
@@ -61,52 +62,65 @@ class WatchlistPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.star,
-                            color: Colors.amber,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StockDetailsPage(
+                            symbol: stock['symbol'],
                           ),
                         ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                stock['description'] ?? 'N/A',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                      );
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  stock['description'] ?? 'N/A',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                stock['symbol'] ?? 'N/A',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.secondary,
+                                SizedBox(height: 4),
+                                Text(
+                                  stock['symbol'] ?? 'N/A',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        IconButton.filled(
-                          onPressed: () => onRemoveStock(index),
-                          icon: Icon(Icons.delete),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                            foregroundColor: Theme.of(context).colorScheme.error,
+                          IconButton.filled(
+                            onPressed: () => onRemoveStock(index),
+                            icon: Icon(Icons.delete),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                              foregroundColor: Theme.of(context).colorScheme.error,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
