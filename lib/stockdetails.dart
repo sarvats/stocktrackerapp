@@ -127,54 +127,65 @@ class _StockDetailsPageState extends State<StockDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (companyProfile.isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              companyProfile['name'] ?? 'Unknown Company',
-                              style: TextStyle(
-                                  fontSize: 24.0, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'Industry: ${companyProfile['finnhubIndustry'] ?? 'N/A'}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'Country: ${companyProfile['country'] ?? 'N/A'}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 16.0),
-                          ],
+                      if (companyProfile.isNotEmpty) ...[
+                        // Display company logo (if available)
+                        if (companyProfile['logo'] != null)
+                          Image.network(companyProfile['logo']),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          companyProfile['name'] ?? 'Unknown Company',
+                          style: TextStyle(
+                              fontSize: 24.0, fontWeight: FontWeight.bold),
                         ),
-                      if (stockQuote.isNotEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Current Price: \$${stockQuote['c']?.toStringAsFixed(2) ?? 'N/A'}',
-                              style: TextStyle(fontSize: 18.0),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'High: \$${stockQuote['h']?.toStringAsFixed(2) ?? 'N/A'}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'Low: \$${stockQuote['l']?.toStringAsFixed(2) ?? 'N/A'}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Text(
-                              'Previous Close: \$${stockQuote['pc']?.toStringAsFixed(2) ?? 'N/A'}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            const SizedBox(height: 16.0),
-                          ],
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Industry: ${companyProfile['finnhubIndustry'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
                         ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Country: ${companyProfile['country'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Market Cap: \$${companyProfile['marketCapitalization'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'PE Ratio: ${companyProfile['peRatio'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Description: ${companyProfile['description'] ?? 'No description available.'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                      if (stockQuote.isNotEmpty) ...[
+                        Text(
+                          'Current Price: \$${stockQuote['c']?.toStringAsFixed(2) ?? 'N/A'}',
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'High: \$${stockQuote['h']?.toStringAsFixed(2) ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Low: \$${stockQuote['l']?.toStringAsFixed(2) ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          'Previous Close: \$${stockQuote['pc']?.toStringAsFixed(2) ?? 'N/A'}',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
                       const SizedBox(height: 16.0),
                       buildRecommendationSection(),
                     ],
