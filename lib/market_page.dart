@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'stockdetails.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'stockdetails.dart';
 
 class MarketPage extends StatefulWidget {
   final Function(dynamic stock) onAddToWatchlist;
@@ -25,7 +27,8 @@ class _MarketPageState extends State<MarketPage> {
 
   Future<void> fetchStocks() async {
     const String apiKey = 'ctdlb1hr01qng9get1lgctdlb1hr01qng9get1m0';
-    final Uri url = Uri.parse('https://finnhub.io/api/v1/stock/symbol?exchange=US&token=$apiKey');
+    final Uri url =
+        Uri.parse('https://finnhub.io/api/v1/stock/symbol?exchange=US&token=$apiKey');
 
     try {
       print('Fetching stock data from API...');
@@ -37,7 +40,7 @@ class _MarketPageState extends State<MarketPage> {
 
         setState(() {
           stocks = decodedResponse;
-          filteredStocks = stocks;
+          filteredStocks = stocks; // Initialize filtered list
           isLoading = false;
         });
       } else {
@@ -79,6 +82,30 @@ class _MarketPageState extends State<MarketPage> {
     });
   }
 
+  Future<void> saveToFirestore(dynamic stock) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('watchlist')
+            .add({
+          'symbol': stock['symbol'],
+          'description': stock['description'],
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        print('Stock added to Firestore: ${stock['symbol']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${stock['description']} added to watchlist')),
+        );
+      }
+    } catch (e) {
+      print('Error saving to Firestore: $e');
+      showError('Failed to save stock to watchlist.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,13 +133,15 @@ class _MarketPageState extends State<MarketPage> {
                       itemCount: filteredStocks.length,
                       itemBuilder: (context, index) {
                         final stock = filteredStocks[index];
-                        print('Displaying stock: ${stock['description'] ?? 'N/A'} (${stock['symbol'] ?? 'N/A'})');
+                        print(
+                            'Displaying stock: ${stock['description'] ?? 'N/A'} (${stock['symbol'] ?? 'N/A'})');
                         return ListTile(
                           leading: Icon(Icons.trending_up, color: Colors.green),
                           title: Text(stock['description'] ?? 'N/A'),
                           subtitle: Text('Symbol: ${stock['symbol'] ?? 'N/A'}'),
                           onTap: () {
-                            print('Navigating to StockDetailsPage for symbol: ${stock['symbol']}');
+                            print(
+                                'Navigating to StockDetailsPage for symbol: ${stock['symbol']}');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -125,6 +154,7 @@ class _MarketPageState extends State<MarketPage> {
                           trailing: ElevatedButton(
                             onPressed: () {
                               print('Adding stock to watchlist: ${stock['symbol']}');
+                              saveToFirestore(stock);
                               widget.onAddToWatchlist(stock);
                             },
                             child: Text('Add'),
