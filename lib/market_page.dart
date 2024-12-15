@@ -7,9 +7,7 @@ import 'stockdetails.dart';
 
 class MarketPage extends StatefulWidget {
   final Function(dynamic stock) onAddToWatchlist;
-
   MarketPage({required this.onAddToWatchlist});
-
   @override
   _MarketPageState createState() => _MarketPageState();
 }
@@ -18,6 +16,7 @@ class _MarketPageState extends State<MarketPage> {
   List<dynamic> stocks = [];
   List<dynamic> filteredStocks = [];
   bool isLoading = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -109,39 +108,56 @@ class _MarketPageState extends State<MarketPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('Market'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Market',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
               decoration: InputDecoration(
-                labelText: 'Search for stocks',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+                hintText: 'Search stocks...',
+                prefixIcon: Icon(Icons.search, 
+                  color: Theme.of(context).colorScheme.primary),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
               onChanged: (value) => filterStocks(value),
             ),
-            SizedBox(height: 16),
-            isLoading
+          ),
+          Expanded(
+            child: isLoading
                 ? Center(child: CircularProgressIndicator())
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredStocks.length,
-                      itemBuilder: (context, index) {
-                        final stock = filteredStocks[index];
-                        print(
-                            'Displaying stock: ${stock['description'] ?? 'N/A'} (${stock['symbol'] ?? 'N/A'})');
-                        return ListTile(
-                          leading: Icon(Icons.trending_up, color: Colors.green),
-                          title: Text(stock['description'] ?? 'N/A'),
-                          subtitle: Text('Symbol: ${stock['symbol'] ?? 'N/A'}'),
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: filteredStocks.length,
+                    itemBuilder: (context, index) {
+                      final stock = filteredStocks[index];
+                      return Card(
+                        elevation: 2,
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
                           onTap: () {
-                            print(
-                                'Navigating to StockDetailsPage for symbol: ${stock['symbol']}');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -151,20 +167,65 @@ class _MarketPageState extends State<MarketPage> {
                               ),
                             );
                           },
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              print('Adding stock to watchlist: ${stock['symbol']}');
-                              saveToFirestore(stock);
-                              widget.onAddToWatchlist(stock);
-                            },
-                            child: Text('Add'),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.trending_up,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        stock['description'] ?? 'N/A',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        stock['symbol'] ?? 'N/A',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                FilledButton.icon(
+                                  onPressed: () {
+                                    saveToFirestore(stock);
+                                    widget.onAddToWatchlist(stock);
+                                  },
+                                  icon: Icon(Icons.add),
+                                  label: Text('Add'),
+                                  style: FilledButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

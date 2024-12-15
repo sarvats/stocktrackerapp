@@ -9,26 +9,105 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('Watchlist'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Watchlist',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: watchlist.isEmpty
           ? Center(
-              child: Text('No stocks in the watchlist yet.'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.visibility_off,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'No stocks in your watchlist',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Add stocks from the Market page',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ],
+              ),
             )
           : ListView.builder(
+              padding: EdgeInsets.all(16),
               itemCount: watchlist.length,
               itemBuilder: (context, index) {
                 final stock = watchlist[index];
-                return ListTile(
-                  leading: Icon(Icons.star, color: Colors.yellow),
-                  title: Text(stock['description'] ?? 'N/A'),
-                  subtitle: Text('Symbol: ${stock['symbol'] ?? 'N/A'}'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      onRemoveStock(index); // Notify parent to remove stock
-                    },
+                return Card(
+                  elevation: 2,
+                  margin: EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                stock['description'] ?? 'N/A',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                stock['symbol'] ?? 'N/A',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton.filled(
+                          onPressed: () => onRemoveStock(index),
+                          icon: Icon(Icons.delete),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                            foregroundColor: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

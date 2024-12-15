@@ -216,39 +216,140 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('Settings'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Settings',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SwitchListTile(
-              title: Text('Dark Mode'),
-              subtitle: Text(_isDarkMode ? 'Enabled' : 'Disabled'),
-              value: _isDarkMode,
-              onChanged: _toggleDarkMode,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Preferences',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
-            SwitchListTile(
-              title: Text('Enable Notifications'),
-              subtitle: Text(_notificationsEnabled ? 'Enabled' : 'Disabled'),
-              value: _notificationsEnabled,
-              onChanged: _toggleNotifications,
+            Card(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text('Dark Mode'),
+                    subtitle: Text(_isDarkMode ? 'Enabled' : 'Disabled'),
+                    value: _isDarkMode,
+                    onChanged: _toggleDarkMode,
+                    secondary: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.dark_mode,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  Divider(height: 1),
+                  SwitchListTile(
+                    title: Text('Notifications'),
+                    subtitle: Text(_notificationsEnabled ? 'Enabled' : 'Disabled'),
+                    value: _notificationsEnabled,
+                    onChanged: _toggleNotifications,
+                    secondary: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.notifications,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Divider(height: 32),
-            TextButton(
-              onPressed: _manageAccount,
-              child: Text('Manage Account', style: TextStyle(fontSize: 18)),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Account',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: _signOut,
-              child: Text('Sign Out', style: TextStyle(fontSize: 18, color: Colors.red)),
+            Card(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.manage_accounts,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    title: Text('Manage Account'),
+                    trailing: Icon(Icons.chevron_right),
+                    onTap: _manageAccount,
+                  ),
+                  Divider(height: 1),
+                  ListTile(
+                    leading: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.logout,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    title: Text(
+                      'Sign Out',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    onTap: _signOut,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

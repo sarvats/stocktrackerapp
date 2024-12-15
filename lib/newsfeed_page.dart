@@ -63,52 +63,130 @@ class _NewsfeedPageState extends State<NewsfeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('Newsfeed'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Market News',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
               ? Center(
-                  child: Text(
-                    errorMessage,
-                    style: TextStyle(fontSize: 18, color: Colors.red),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        errorMessage,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 )
-              : newsArticles.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No news available.',
-                        style: TextStyle(fontSize: 18),
+              : ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: newsArticles.length,
+                  itemBuilder: (context, index) {
+                    final article = newsArticles[index];
+                    return Card(
+                      elevation: 2,
+                      margin: EdgeInsets.only(bottom: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: newsArticles.length,
-                      itemBuilder: (context, index) {
-                        final article = newsArticles[index];
-                        return Card(
-                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          child: ListTile(
-                            leading: article['image'] != null
-                                ? Image.network(
-                                    article['image'],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                            title: Text(article['headline'] ?? 'No Title'),
-                            subtitle: Text('${article['source']}'),
-                            trailing: IconButton(
-                              icon: Icon(Icons.bookmark_border),
-                              onPressed: () => _bookmarkArticle(index),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _openArticleDetails(article),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (article['image'] != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                                child: Image.network(
+                                  article['image'],
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.secondaryContainer,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          article['source'] ?? '',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.secondary,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      IconButton(
+                                        icon: Icon(Icons.bookmark_border),
+                                        onPressed: () => _bookmarkArticle(index),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    article['headline'] ?? 'No Title',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (article['summary'] != null) ...[
+                                    SizedBox(height: 8),
+                                    Text(
+                                      article['summary'],
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
-                            onTap: () => _openArticleDetails(article),
-                          ),
-                        );
-                      },
-                    ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

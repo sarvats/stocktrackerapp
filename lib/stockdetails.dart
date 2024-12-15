@@ -96,101 +96,244 @@ class _StockDetailsPageState extends State<StockDetailsPage> {
     );
   }
 
+  Widget _buildInfoCard(String title, List<Widget> children) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            SizedBox(height: 16),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStockPrice() {
+    final priceChange = (stockQuote['c'] ?? 0.0) - (stockQuote['pc'] ?? 0.0);
+    final priceChangePercentage = (priceChange / (stockQuote['pc'] ?? 1)) * 100;
+    final isPositive = priceChange >= 0;
+
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text(
+              '\$${stockQuote['c']?.toStringAsFixed(2) ?? 'N/A'}',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  isPositive ? Icons.arrow_upward : Icons.arrow_downward,
+                  color: isPositive ? Colors.green : Colors.red,
+                  size: 20,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  '${isPositive ? '+' : ''}${priceChange.toStringAsFixed(2)} (${priceChangePercentage.toStringAsFixed(2)}%)',
+                  style: TextStyle(
+                    color: isPositive ? Colors.green : Colors.red,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRecommendationBox(String label, int? value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(8),
         ),
-        const SizedBox(height: 8.0),
-        Text(
-          value?.toString() ?? 'N/A',
-          style: TextStyle(fontSize: 16.0, color: Colors.blue),
+        child: Column(
+          children: [
+            Text(
+              value?.toString() ?? 'N/A',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text(widget.symbol),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          widget.symbol,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : errorMessage.isNotEmpty
-              ? Center(child: Text(errorMessage))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        errorMessage,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (companyProfile.isNotEmpty) ...[
-                        // Display company logo (if available)
-                        if (companyProfile['logo'] != null)
-                          Image.network(companyProfile['logo']),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          companyProfile['name'] ?? 'Unknown Company',
-                          style: TextStyle(
-                              fontSize: 24.0, fontWeight: FontWeight.bold),
+                        _buildInfoCard(
+                          'Company Profile',
+                          [
+                            if (companyProfile['logo'] != null)
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Image.network(
+                                    companyProfile['logo'],
+                                    height: 60,
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 16),
+                            Text(
+                              companyProfile['name'] ?? 'Unknown Company',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            _buildInfoRow('Industry', companyProfile['finnhubIndustry']),
+                            _buildInfoRow('Country', companyProfile['country']),
+                            _buildInfoRow('Market Cap', '\$${companyProfile['marketCapitalization']}'),
+                            _buildInfoRow('PE Ratio', '${companyProfile['peRatio']}'),
+                          ],
                         ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Industry: ${companyProfile['finnhubIndustry'] ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Country: ${companyProfile['country'] ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Market Cap: \$${companyProfile['marketCapitalization'] ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'PE Ratio: ${companyProfile['peRatio'] ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Description: ${companyProfile['description'] ?? 'No description available.'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 16.0),
                       ],
-                      if (stockQuote.isNotEmpty) ...[
-                        Text(
-                          'Current Price: \$${stockQuote['c']?.toStringAsFixed(2) ?? 'N/A'}',
-                          style: TextStyle(fontSize: 18.0),
+                      if (stockQuote.isNotEmpty) _buildStockPrice(),
+                      if (recommendationData.isNotEmpty)
+                        _buildInfoCard(
+                          'Analyst Recommendations',
+                          [
+                            Row(
+                              children: [
+                                _buildRecommendationBox('Strong Buy', recommendationData['strongBuy']),
+                                SizedBox(width: 8),
+                                _buildRecommendationBox('Buy', recommendationData['buy']),
+                                SizedBox(width: 8),
+                                _buildRecommendationBox('Hold', recommendationData['hold']),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                _buildRecommendationBox('Sell', recommendationData['sell']),
+                                SizedBox(width: 8),
+                                _buildRecommendationBox('Strong Sell', recommendationData['strongSell']),
+                                SizedBox(width: 8),
+                                Expanded(child: SizedBox()),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'High: \$${stockQuote['h']?.toStringAsFixed(2) ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Low: \$${stockQuote['l']?.toStringAsFixed(2) ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Previous Close: \$${stockQuote['pc']?.toStringAsFixed(2) ?? 'N/A'}',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 16.0),
-                      ],
-                      const SizedBox(height: 16.0),
-                      buildRecommendationSection(),
                     ],
                   ),
                 ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String? value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          Text(
+            value ?? 'N/A',
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
