@@ -1,6 +1,8 @@
 # stockapp
 
 A new Flutter project.
+Youtube : https://youtu.be/9q_Rprn0HKk
+
 
 ## Getting Started
 
